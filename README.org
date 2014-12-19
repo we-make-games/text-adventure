@@ -1,0 +1,14 @@
+* About
+This is the source code repository of text adventure a free and open source game.
+* Compilation
+Make sure the necessary dependencies are installed:
+sdl2
+sdl2_mixer
+sdl2_ttf
+
+go to the text-adventure folder
+run "cmake ./"
+run "make"
+
+run "./source/adventure" to start the game.
+
