@@ -1,10 +1,10 @@
-<SDL2/SDL.h>
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
  
 #include <iostream>
 #include <string>
 
- // Setup
+// Setup
 bool InitEverything();
 bool InitSDL();
 bool CreateWindow();
@@ -52,31 +52,31 @@ int main( int argc, char* args[] )
 void RunGame()
 {
 
-  while (!done)
+    while (!done)
     {
-      if (SDL_PollEvent(&event))
+        if (SDL_PollEvent(&event))
         {
-          switch (event.type)
+            switch (event.type)
             {
-            case SDL_TEXTINPUT:
-              text += event.text.text;
+                case SDL_TEXTINPUT:
+                  text += event.text.text;
 
-              if (text.find(quitcommand) != std::string::npos) {
-                done = true;
-              }
-              break;
-            case SDL_TEXTEDITING:
-              // char composition[] = event.edit.text;
-              int cursor = event.edit.start;
-              int selection_len = event.edit.length;
-              break;
+                  if (text.find(quitcommand) != std::string::npos) {
+                    done = true;
+                  }
+                    break;
+                case SDL_TEXTEDITING:
+                 // char composition[] = event.edit.text;
+                    int cursor = event.edit.start;
+                    int selection_len = event.edit.length;
+                    break;
             }
         }
-      //        Redraw();
-      CreateTextTextures();
-      Render();
+        //        Redraw();
+        CreateTextTextures();
+        Render();
     }
-  exit(0);
+    exit(0);
 }
 void Render()
 {
