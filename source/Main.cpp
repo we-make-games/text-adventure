@@ -3,13 +3,17 @@
  
 #include <iostream>
 #include <string>
+#include <queue>
+#include "Helper.hpp"
+std::queue<std::string> history;
+
+using namespace adventure;
 
 // Setup
 bool InitEverything();
 bool InitSDL();
-bool CreateWindow();
 bool CreateRenderer();
-void SetupRenderer();
+void setupRenderer();
  
 // Setup TTF
 bool setupTtf( const std::string &fontName );
@@ -18,19 +22,17 @@ void CreateTextTextures();
  
 // Update
 void Render();
-void RunGame();
+void runGame();
  
 TTF_Font* font;
 SDL_Color textColor = { 255, 255, 255, 255 };
 SDL_Color backgroundColor = { 0, 0, 0, 255 };
  
-SDL_Texture* solidTexture;
 SDL_Texture* blendedTexture;
-SDL_Texture* shadedTexture;
+SDL_Texture* blendedTexture2;
  
-SDL_Rect solidRect;
 SDL_Rect blendedRect;
-SDL_Rect shadedRect;
+SDL_Rect blendedRect2;
  
 SDL_Rect windowRect = { 900, 300, 400, 400 };
 SDL_Window* window;
@@ -45,11 +47,11 @@ int main( int argc, char* args[] )
   if ( !InitEverything() )
     return -1;
  
-  RunGame();
+  runGame();
  
   TTF_CloseFont( font );
 }
-void RunGame()
+void runGame()
 {
 
     while (!done)
@@ -82,9 +84,8 @@ void Render()
 {
   SDL_RenderClear( renderer );
  
-  SDL_RenderCopy( renderer, solidTexture, nullptr, &solidRect );
   SDL_RenderCopy( renderer, blendedTexture, nullptr, &blendedRect );
-  SDL_RenderCopy( renderer, shadedTexture, nullptr, &shadedRect );
+  SDL_RenderCopy( renderer, blendedTexture2, nullptr, &blendedRect2 );
  
   SDL_RenderPresent( renderer);
 }
@@ -111,26 +112,21 @@ bool setupTtf( const std::string &fontName)
 
 void CreateTextTextures()
 {
-  SDL_Surface* solid = TTF_RenderText_Solid( font, text.c_str(), textColor );
-  solidTexture = SurfaceToTexture( solid );
- 
-  SDL_QueryTexture( solidTexture, NULL, NULL, &solidRect.w, &solidRect.h );
-  solidRect.x = 0;
-  solidRect.y = 0;
- 
-  SDL_Surface* blended = TTF_RenderText_Blended( font, "enter", textColor );
+  SDL_Surface* blended = TTF_RenderText_Blended( font, text.c_str(), textColor );
+  SDL_Surface* blended2 = TTF_RenderText_Blended( font, "enter", textColor );
   blendedTexture = SurfaceToTexture( blended );
- 
+  blendedTexture2 = SurfaceToTexture( blended2 );
+
+  blendedRect.x = 400;
+  blendedRect.y = 400;
+
   SDL_QueryTexture( blendedTexture, NULL, NULL, &blendedRect.w, &blendedRect.h );
-  blendedRect.x = 0;
-  blendedRect.y = solidRect.y + solidRect.h + 20;
- 
-  SDL_Surface* shaded = TTF_RenderText_Shaded( font, "quit", textColor, backgroundColor );
-  shadedTexture = SurfaceToTexture( shaded );
- 
-  SDL_QueryTexture( shadedTexture , NULL, NULL, &shadedRect.w, &shadedRect.h );
-  shadedRect.x = 0;
-  shadedRect.y = blendedRect.y + blendedRect.h + 20;
+
+  blendedRect2.x = 200;
+  blendedRect2.y = 200;
+  
+  SDL_QueryTexture( blendedTexture2, NULL, NULL, &blendedRect2.w, &blendedRect2.h );
+
 }
 
 SDL_Texture* SurfaceToTexture( SDL_Surface* surf )
@@ -147,14 +143,17 @@ bool InitEverything()
 {
   if ( !InitSDL() )
     return false;
- 
-  if ( !CreateWindow() )
-    return false;
- 
+  window = Helper::getWindow();
+  if ( window == nullptr )
+    {
+      std::cout << "Failed to create window : " << SDL_GetError();
+      return false;
+    }
+  
   if ( !CreateRenderer() )
     return false;
  
-  SetupRenderer();
+  setupRenderer();
  
   if ( !setupTtf( "./data/fonts/FreeSans.ttf" ) )
     return false;
@@ -174,18 +173,7 @@ bool InitSDL()
  
   return true;
 }
-bool CreateWindow()
-{
-  window = SDL_CreateWindow( "Server", windowRect.x, windowRect.y, windowRect.w, windowRect.h, 0 );
- 
-  if ( window == nullptr )
-    {
-      std::cout << "Failed to create window : " << SDL_GetError();
-      return false;
-    }
- 
-  return true;
-}
+
 bool CreateRenderer()
 {
   renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED );
@@ -198,11 +186,7 @@ bool CreateRenderer()
  
   return true;
 }
-void SetupRenderer()
+void setupRenderer()
 {
-  // Set size of renderer to the same as window
-  SDL_RenderSetLogicalSize( renderer, windowRect.w, windowRect.h );
- 
-  // Set color of renderer to red
-  SDL_SetRenderDrawColor( renderer, 255, 0, 0, 255 );
+  SDL_SetRenderDrawColor( renderer, 50, 50, 50, 255 );
 }
