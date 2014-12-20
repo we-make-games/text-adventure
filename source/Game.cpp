@@ -54,31 +54,38 @@ int main( int argc, char* args[] )
 void runGame()
 {
 
-    while (!done)
+  while (!done)
     {
-        if (SDL_PollEvent(&event))
+      if (SDL_PollEvent(&event))
         {
-            switch (event.type)
+          switch (event.type)
             {
-                case SDL_TEXTINPUT:
-                  text += event.text.text;
+            case SDL_KEYDOWN:
+              if(event.key.keysym.sym == SDLK_BACKSPACE && (text.length() > 0)){
+                  text.pop_back();
+              } else if(event.key.keysym.sym == SDLK_RETURN && (text.length() > 0)){
+                text = "";
+              }
+              break;
+              
+            case SDL_TEXTINPUT:
+              text += event.text.text;
 
-                  if (text.find(quitcommand) != std::string::npos) {
-                    done = true;
-                  }
-                    break;
-                case SDL_TEXTEDITING:
-                 // char composition[] = event.edit.text;
-                    int cursor = event.edit.start;
-                    int selection_len = event.edit.length;
-                    break;
+              if (text.find(quitcommand) != std::string::npos) {
+                done = true;
+              }
+              break;
+            case SDL_TEXTEDITING:
+              // char composition[] = event.edit.text;
+              int cursor = event.edit.start;
+              int selection_len = event.edit.length;
+              break;
             }
         }
-        //        Redraw();
-        CreateTextTextures();
-        Render();
+      CreateTextTextures();
+      Render();
     }
-    exit(0);
+  exit(0);
 }
 void Render()
 {
