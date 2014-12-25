@@ -44,7 +44,7 @@ std::string text;
 SDL_Event event;
 bool done = false;
 std::string quitcommand("quit");
-Window* window = new Window();
+Window window;
 
 int main( int argc, char* args[] )
 {
@@ -161,7 +161,7 @@ bool InitEverything()
   if ( !InitSDL() )
     return false;
   //  sdl_window = window->getSdlWindow();
-  //sdl_window = window->getSdlWindow();
+  //  sdl_window = window.getSdlWindow();
   sdl_window = Helper::getWindow();
   if ( sdl_window == nullptr )
     {
