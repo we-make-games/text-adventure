@@ -5,6 +5,10 @@
 #include <string>
 #include <queue>
 #include "Helper.hpp"
+#include "Entity.hpp"
+#include "Text.hpp"
+#include "Window.hpp"
+
 std::queue<std::string> history;
 
 using namespace adventure;
@@ -12,16 +16,15 @@ using namespace adventure;
 // Setup
 bool InitEverything();
 bool InitSDL();
-bool CreateRenderer();
-void setupRenderer();
  
 // Setup TTF
 bool setupTtf( const std::string &fontName );
 SDL_Texture* SurfaceToTexture( SDL_Surface* surf );
-void CreateTextTextures();
+void createTextTextures();
+void handleEvents();
  
 // Update
-void Render();
+void render();
 void runGame();
  
 TTF_Font* font;
@@ -35,12 +38,13 @@ SDL_Rect blendedRect;
 SDL_Rect blendedRect2;
  
 SDL_Rect windowRect = { 900, 300, 400, 400 };
-SDL_Window* window;
+SDL_Window* sdl_window;
 SDL_Renderer* renderer;
 std::string text;
 SDL_Event event;
 bool done = false;
 std::string quitcommand("quit");
+Window* window = new Window();
 
 int main( int argc, char* args[] )
 {
@@ -56,39 +60,45 @@ void runGame()
 
   while (!done)
     {
-      if (SDL_PollEvent(&event))
-        {
-          switch (event.type)
-            {
-            case SDL_KEYDOWN:
-              if(event.key.keysym.sym == SDLK_BACKSPACE && (text.length() > 0)){
-                  text.pop_back();
-              } else if(event.key.keysym.sym == SDLK_RETURN && (text.length() > 0)){
-                text = "";
-              }
-              break;
-              
-            case SDL_TEXTINPUT:
-              text += event.text.text;
-
-              if (text.find(quitcommand) != std::string::npos) {
-                done = true;
-              }
-              break;
-            case SDL_TEXTEDITING:
-              // char composition[] = event.edit.text;
-              int cursor = event.edit.start;
-              int selection_len = event.edit.length;
-              break;
-            }
-        }
-      CreateTextTextures();
-      Render();
+      handleEvents();
+      createTextTextures();
+      render();
     }
   exit(0);
 }
-void Render()
+
+void handleEvents(){
+  if (SDL_PollEvent(&event))
+    {
+      switch (event.type)
+        {
+        case SDL_KEYDOWN:
+          if(event.key.keysym.sym == SDLK_BACKSPACE && (text.length() > 0)){
+            text.pop_back();
+          } else if(event.key.keysym.sym == SDLK_RETURN && (text.length() > 0)){
+            text = "";
+          }
+          break;
+          
+        case SDL_TEXTINPUT:
+          text += event.text.text;
+          
+          if (text.find(quitcommand) != std::string::npos) {
+            done = true;
+          }
+          break;
+        case SDL_TEXTEDITING:
+          // char composition[] = event.edit.text;
+          int cursor = event.edit.start;
+          int selection_len = event.edit.length;
+              break;
+        }
+    }
+}
+
+void render()
 {
+  //  SceneRenderer->render(scene);
   SDL_RenderClear( renderer );
  
   SDL_RenderCopy( renderer, blendedTexture, nullptr, &blendedRect );
@@ -117,7 +127,7 @@ bool setupTtf( const std::string &fontName)
   return true;
 }
 
-void CreateTextTextures()
+void createTextTextures()
 {
   SDL_Surface* blended = TTF_RenderText_Blended( font, text.c_str(), textColor );
   SDL_Surface* blended2 = TTF_RenderText_Blended( font, "enter", textColor );
@@ -150,22 +160,29 @@ bool InitEverything()
 {
   if ( !InitSDL() )
     return false;
-  window = Helper::getWindow();
-  if ( window == nullptr )
+  //  sdl_window = window->getSdlWindow();
+  //sdl_window = window->getSdlWindow();
+  sdl_window = Helper::getWindow();
+  if ( sdl_window == nullptr )
     {
       std::cout << "Failed to create window : " << SDL_GetError();
       return false;
     }
-  
-  if ( !CreateRenderer() )
-    return false;
+
+  renderer = SDL_CreateRenderer( sdl_window, -1, SDL_RENDERER_ACCELERATED );
  
-  setupRenderer();
+  if ( renderer == nullptr )
+    {
+      std::cout << "Failed to create renderer : " << SDL_GetError();
+      return false;
+    }
+  
+  Helper::setupRenderer(renderer);
  
   if ( !setupTtf( "./data/fonts/FreeSans.ttf" ) )
     return false;
  
-  CreateTextTextures();
+  createTextTextures();
   SDL_StartTextInput();
 
   return true;
@@ -179,21 +196,4 @@ bool InitSDL()
     }
  
   return true;
-}
-
-bool CreateRenderer()
-{
-  renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED );
- 
-  if ( renderer == nullptr )
-    {
-      std::cout << "Failed to create renderer : " << SDL_GetError();
-      return false;
-    }
- 
-  return true;
-}
-void setupRenderer()
-{
-  SDL_SetRenderDrawColor( renderer, 50, 50, 50, 255 );
 }
