@@ -15,7 +15,7 @@ using namespace adventure;
 
 Window window;
 // Setup
-bool InitEverything();
+bool init();
  
 // Setup TTF
 bool setupTtf( const std::string &fontName );
@@ -28,7 +28,6 @@ void render();
 void runGame();
  
 TTF_Font* font;
-SDL_Color textColor = { 255, 255, 255, 255 };
 SDL_Color backgroundColor = { 0, 0, 0, 255 };
  
 SDL_Texture* blendedTexture;
@@ -47,7 +46,7 @@ std::string quitcommand("quit");
 
 int main( int argc, char* args[] )
 {
-  if ( !InitEverything() )
+  if ( !init() )
     return -1;
  
   runGame();
@@ -128,8 +127,9 @@ bool setupTtf( const std::string &fontName)
 
 void createTextTextures()
 {
+  SDL_Color textColor = { 255, 255, 255, 255 };
   SDL_Surface* blended = TTF_RenderText_Blended( font, text.c_str(), textColor );
-  SDL_Surface* blended2 = TTF_RenderText_Blended( font, "enter quit", textColor );
+  SDL_Surface* blended2 = TTF_RenderText_Blended( font, "enter quit to exit", textColor );
   blendedTexture = SurfaceToTexture( blended );
   blendedTexture2 = SurfaceToTexture( blended2 );
 
@@ -155,7 +155,7 @@ SDL_Texture* SurfaceToTexture( SDL_Surface* surf )
  
   return text;
 }
-bool InitEverything()
+bool init()
 {
   sdl_window = window.getSdlWindow();
   if ( sdl_window == nullptr )
@@ -164,7 +164,7 @@ bool InitEverything()
       return false;
     }
 
-  renderer = SDL_CreateRenderer( sdl_window, -1, SDL_RENDERER_ACCELERATED );
+  renderer = window.getSdlRenderer();
   if ( renderer == nullptr )
     {
       std::cout << "Failed to create renderer : " << SDL_GetError();

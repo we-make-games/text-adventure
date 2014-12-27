@@ -10,8 +10,6 @@ namespace adventure {
 
 class Helper {
 public:
-  static SDL_Window* getWindow();
-  static bool setupTtf( const std::string &fontName);
   static void setupRenderer(SDL_Renderer* renderer);
 };
 

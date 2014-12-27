@@ -28,4 +28,14 @@ namespace adventure {
   {
     return window;
   }
+
+  SDL_Renderer* Window::getSdlRenderer()
+  {
+    if(renderer == nullptr){
+      renderer =  SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED );
+    }
+    
+    return renderer;
+  }
+  
 }

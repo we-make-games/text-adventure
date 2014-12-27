@@ -11,8 +11,10 @@ class Window {
 public:
   Window();
   SDL_Window* getSdlWindow();
+  SDL_Renderer* getSdlRenderer();
 private:
   SDL_Window* window;
+  SDL_Renderer* renderer;
 };
 
 } 
