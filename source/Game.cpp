@@ -13,9 +13,9 @@ std::queue<std::string> history;
 
 using namespace adventure;
 
+Window window;
 // Setup
 bool InitEverything();
-bool InitSDL();
  
 // Setup TTF
 bool setupTtf( const std::string &fontName );
@@ -36,15 +36,14 @@ SDL_Texture* blendedTexture2;
  
 SDL_Rect blendedRect;
 SDL_Rect blendedRect2;
- 
-SDL_Rect windowRect = { 900, 300, 400, 400 };
-SDL_Window* sdl_window;
+
+SDL_Window* sdl_window = 0;
 SDL_Renderer* renderer;
 std::string text;
 SDL_Event event;
 bool done = false;
 std::string quitcommand("quit");
-Window window;
+
 
 int main( int argc, char* args[] )
 {
@@ -130,7 +129,7 @@ bool setupTtf( const std::string &fontName)
 void createTextTextures()
 {
   SDL_Surface* blended = TTF_RenderText_Blended( font, text.c_str(), textColor );
-  SDL_Surface* blended2 = TTF_RenderText_Blended( font, "enter", textColor );
+  SDL_Surface* blended2 = TTF_RenderText_Blended( font, "enter quit", textColor );
   blendedTexture = SurfaceToTexture( blended );
   blendedTexture2 = SurfaceToTexture( blended2 );
 
@@ -158,11 +157,7 @@ SDL_Texture* SurfaceToTexture( SDL_Surface* surf )
 }
 bool InitEverything()
 {
-  if ( !InitSDL() )
-    return false;
-  //  sdl_window = window->getSdlWindow();
-  //  sdl_window = window.getSdlWindow();
-  sdl_window = Helper::getWindow();
+  sdl_window = window.getSdlWindow();
   if ( sdl_window == nullptr )
     {
       std::cout << "Failed to create window : " << SDL_GetError();
@@ -170,30 +165,18 @@ bool InitEverything()
     }
 
   renderer = SDL_CreateRenderer( sdl_window, -1, SDL_RENDERER_ACCELERATED );
- 
   if ( renderer == nullptr )
     {
       std::cout << "Failed to create renderer : " << SDL_GetError();
       return false;
     }
-  
   Helper::setupRenderer(renderer);
- 
+  
   if ( !setupTtf( "./data/fonts/FreeSans.ttf" ) )
     return false;
  
   createTextTextures();
   SDL_StartTextInput();
 
-  return true;
-}
-bool InitSDL()
-{
-  if ( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
-    {
-      std::cout << " Failed to initialize SDL : " << SDL_GetError() << std::endl;
-      return false;
-    }
- 
   return true;
 }

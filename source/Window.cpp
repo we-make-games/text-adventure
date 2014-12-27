@@ -8,6 +8,12 @@ namespace adventure {
 
   Window::Window()
   {
+      if ( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
+    {
+      std::cout <<
+      " Failed to initialize SDL : " << SDL_GetError() << std::endl;
+    }
+
     window = SDL_CreateWindow(
                               "Text Adventure",        
                               SDL_WINDOWPOS_UNDEFINED, 
